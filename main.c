@@ -29,26 +29,16 @@ int main () {
 		reads[i] = (char*)malloc(READ_MAX_LENGTH * sizeof(char)); // maybe causes overflow /:
 		scanf("%99s", reads[i]);
 	}
-
-	int **decimal_reads = (int**)malloc(n * sizeof(int*));
-
-	for (int i = 0; i < n; i++) {
-		decimal_reads[i] = (int*)malloc(READ_MAX_LENGTH * sizeof(int));
-
-		for (int j = 0; j < strlen(reads[i]); j++) {
-			decimal_reads[i][j] = (int)reads[i][j];
-		}
-	}
 	
 	int higher_overlaps[3] = {0, -1, -1};
 
 	for (int i = 0; i < n; i++) {
-		int *readi = decimal_reads[i];
+		char *readi = reads[i];
 		
 		for (int j = 0; j < n; j++) {
 			if (i == j) continue;
 			
-			int *readj = decimal_reads[j];
+			char *readj = reads[j];
 			int overlaps = 0;
 
 			// prefixo vs. prefixo
