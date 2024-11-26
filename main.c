@@ -58,57 +58,6 @@ int main () {
 				if (temp_overlaps > overlaps) overlaps = temp_overlaps;
 			}
 
-			// sufixo vs. sufixo
-			for (int si = strlen(reads[i]) - 1; si >= 0; si--) {
-				int temp_overlaps = 0;
-				int temp_si = si;
-				
-				for (int sj = strlen(reads[j]) - 1; sj >= 0; sj--) {
-					if (readi[temp_si] == readj[sj]) {
-						temp_si++;
-						temp_overlaps++;
-					} else {
-						temp_si = si;
-						temp_overlaps = 0;
-					}
-				}
-				if (temp_overlaps > overlaps) overlaps = temp_overlaps;
-			}
-
-			// prefixo vs. sufixo
-			for (int si = 0; si < strlen(reads[i]); si++) {
-				int temp_overlaps = 0;
-				int temp_si = si;
-				
-				for (int sj = strlen(reads[j]) - 1; sj >= 0; sj--) {
-					if (readi[temp_si] == readj[sj]) {
-						temp_si++;
-						temp_overlaps++;
-					} else {
-						temp_si = si;
-						temp_overlaps = 0;
-					}
-				}
-				if (temp_overlaps > overlaps) overlaps = temp_overlaps;
-			}
-
-			// sufixo vs. prefixo
-			for (int si = strlen(reads[i]) - 1; si >= 0; si--) {
-				int temp_overlaps = 0;
-				int temp_si = si;
-				
-				for (int sj = 0; sj < strlen(reads[j]); sj++) {
-					if (readi[temp_si] == readj[sj]) {
-						temp_si++;
-						temp_overlaps++;
-					} else {
-						temp_si = si;
-						temp_overlaps = 0;
-					}
-				}
-				if (temp_overlaps > overlaps) overlaps = temp_overlaps;
-			}
-
 			if (overlaps > higher_overlaps[0]) {
 				higher_overlaps[0] = overlaps;
 				higher_overlaps[1] = j;
