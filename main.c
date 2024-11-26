@@ -46,7 +46,9 @@ Overlap find_max_overlap(char **reads, int i, int j) {
 		if (temp_overlaps > overlaps) overlaps = temp_overlaps;
 	}
 
-	
+	Overlap overlap;
+
+	return overlap;
 }
 
 int main () {
@@ -71,6 +73,23 @@ int main () {
 			
 			char *readj = reads[j];
 			int overlaps = 0;
+
+			// prefixo vs. prefixo
+			for (int si = 0; si < strlen(readi); si++) {
+				int temp_overlaps = 0;
+				int temp_si = si;
+				
+				for (int sj = 0; sj < strlen(readj); sj++) {
+					if (readi[temp_si] == readj[sj]) {
+						temp_si++;
+						temp_overlaps++;
+					} else {
+						temp_si = si;
+						if (temp_overlaps > overlaps) overlaps = temp_overlaps;
+						temp_overlaps = 0;
+					}
+				}
+			}
 
 			if (overlaps > higher_overlaps[0]) {
 				higher_overlaps[0] = overlaps;
