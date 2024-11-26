@@ -4,6 +4,14 @@
 
 #define READ_MAX_LENGTH 100
 
+typedef struct {
+	int overlaps;
+	size_t begin;
+	size_t end;
+	size_t index_vec_a;
+	size_t index_vec_b;
+} Overlap;
+
 void printnvec(int *vec, int n) {
 	for (int i = 0; i < n; i++) {
 		printf("%d ", vec[i]);
@@ -16,6 +24,29 @@ void printcvec(char *vec, int n) {
 		printf("%c ", vec[i]);
 	}
 	printf("\n");
+}
+
+Overlap find_max_overlap(char **reads, int i, int j) {
+	int overlaps = 0;
+
+	// prefixo vs. prefixo
+	for (int si = 0; si < strlen(reads[i]); si++) {
+		int temp_overlaps = 0;
+		int temp_si = si;
+				
+		for (int sj = 0; sj < strlen(reads[j]); sj++) {
+			if (reads[i][temp_si] == reads[j][sj]) {
+				temp_si++;
+				temp_overlaps++;
+			} else {
+				temp_si = si;
+				temp_overlaps = 0;
+			}
+		}
+		if (temp_overlaps > overlaps) overlaps = temp_overlaps;
+	}
+
+	
 }
 
 int main () {
@@ -40,23 +71,6 @@ int main () {
 			
 			char *readj = reads[j];
 			int overlaps = 0;
-
-			// prefixo vs. prefixo
-			for (int si = 0; si < strlen(reads[i]); si++) {
-				int temp_overlaps = 0;
-				int temp_si = si;
-				
-				for (int sj = 0; sj < strlen(reads[j]); sj++) {
-					if (readi[temp_si] == readj[sj]) {
-						temp_si++;
-						temp_overlaps++;
-					} else {
-						temp_si = si;
-						temp_overlaps = 0;
-					}
-				}
-				if (temp_overlaps > overlaps) overlaps = temp_overlaps;
-			}
 
 			if (overlaps > higher_overlaps[0]) {
 				higher_overlaps[0] = overlaps;
