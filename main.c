@@ -6,12 +6,10 @@
 
 typedef struct {
 	int overlaps;
-	size_t begin_a;
-	size_t end_a;
-	size_t begin_b;
-	size_t end_b;
-	size_t index_vec_a;
-	size_t index_vec_b;
+	size_t indexes_a[2];
+	size_t indexes_b[2];
+	char *vec_a;
+	char *vec_b ;
 } Overlap;
 
 void printnvec(int *vec, int n) {
@@ -46,15 +44,25 @@ Overlap get_overlap(char **reads, int i, int j) {
 			if (reads[i][temp_si] == reads[j][sj]) {
 				temp_si++;
 				temp_overlaps++;
+
+				if (temp_overlaps == strlen(reads[j])) {
+					overlap.overlaps = temp_overlaps;
+					overlap.indexes_a[0] = 0;
+					overlap.indexes_a[1] = strlen(reads[i]) - 1;
+					overlap.indexes_b[0] = 0;
+					overlap.indexes_b[1] = strlen(reads[j]) - 1;
+					overlap.vec_a = reads[i];
+					overlap.vec_b = reads[j];
+				}
 			} else {
 				if (temp_overlaps > overlap.overlaps) {
 					overlap.overlaps = temp_overlaps;
-					overlap.begin_a = si;
-					overlap.end_a = temp_si - 1;
-					overlap.begin_b = sj - temp_overlaps;
-					overlap.end_b = sj - 1;
-					overlap.index_vec_a = i;
-					overlap.index_vec_b = j;
+					overlap.indexes_a[0] = si;
+					overlap.indexes_a[1] = temp_si - 1;
+					overlap.indexes_b[0] = sj - temp_overlaps;
+					overlap.indexes_b[1] = sj - 1;
+					overlap.vec_a = reads[i];
+					overlap.vec_b = reads[j];
 				};
 				temp_si = si;
 				temp_overlaps = 0;
@@ -77,7 +85,8 @@ int main () {
 		scanf("%99s", reads[i]);
 	}
 	
-	int higher_overlaps[3] = {0, -1, -1};
+	Overlap higher_overlaps;
+	higher_overlaps.overlaps = 0;
 
 	for (int i = 0; i < n; i++) {
 		char *readi = reads[i];
@@ -89,16 +98,21 @@ int main () {
 			int overlaps = 0;
 
 			Overlap overlap = get_overlap(reads, i, j);
-			printcvec(reads[i]);
-			printcvec(reads[j]);
+			//			printcvec(reads[i]);
+			//      printcvec(reads[j]);
 
-			printf("sobreposicoes: %d\na: %d-%d\nb: %d-%d\n\n", overlap.overlaps, overlap.begin_a, overlap.end_a, overlap.begin_b, overlap.end_b);
+			if (overlap.overlaps > higher_overlaps.overlaps) {
+				higher_overlaps = overlap;
+			}
+
 		}
 	}
 
-	printf("maior overlap: %d\n", higher_overlaps[0]);
-	printf("posicao 1: %d\n", higher_overlaps[1]);
-	printf("posicao 2: %d\n", higher_overlaps[2]);
+	printf("sobreposicoes: %d\na: %d-%d\nb: %d-%d\n\n", higher_overlaps.overlaps, higher_overlaps.indexes_a[0], higher_overlaps.indexes_a[1], higher_overlaps.indexes_b[0], higher_overlaps.indexes_b[1]);
+	printf("a: \n");
+	printcvec(higher_overlaps.vec_a);
+	printf("b: \n");
+	printcvec(higher_overlaps.vec_b);
 	
 	return 0;
 }
