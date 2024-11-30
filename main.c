@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define READ_MAX_LENGTH 100
+#define READ_MAX_LENGTH 10000
 
 typedef struct {
 	int overlaps_count;
@@ -10,6 +10,8 @@ typedef struct {
 	size_t indexes_b[2];
 	char *read_a;
 	char *read_b;
+	size_t index_a;
+	size_t index_b;
 } Overlap;
 
 void printnvec(int *vec, int n) {
@@ -31,16 +33,19 @@ void printcvec(char *vec) {
 }
 
 char* merge_overlap(Overlap overlap) {
-	char *merged_string = (char*)malloc(sizeof(char) * 100);
+	char *merged_string = (char*)malloc(sizeof(char) * READ_MAX_LENGTH);
 	strcpy(merged_string, overlap.read_a);
 
-	if (strlen(overlap.read_a) < strlen(overlap.read_b)) {
-		for (int i = overlap.indexes_b[0]; i < strlen(overlap.read_b); i++) merged_string[i + overlap.indexes_a[0]] = overlap.read_b[i];
-	} else {
-		for (int i = overlap.indexes_a[0]; i < strlen(overlap.read_a); i++) merged_string[i + overlap.indexes_b[0]] = overlap.read_a[i];
+	if (overlap.overlaps_count == strlen(overlap.read_b)) return merged_string;
+	// printf("overlaps count: %d\n",overlap.overlaps_count);
+	if (overlap.overlaps_count == 0) return strcat(merged_string, overlap.read_b);
+
+	for (int i = overlap.indexes_b[0]; i < strlen(overlap.read_b); i++) {
+		//		merged_string[i] = merged_string[i + 1];
+		merged_string[i + overlap.indexes_a[0]] = overlap.read_b[i];
 	}
 
-	printf("%s\n", merged_string);
+	printf("string: %s\n", merged_string);
 
 	return merged_string;
 }
@@ -68,6 +73,8 @@ Overlap get_overlap(char **reads, int i, int j) {
 					overlap.indexes_b[1] = strlen(reads[j]) - 1;
 					overlap.read_a = reads[i];
 					overlap.read_b = reads[j];
+					overlap.index_a = i;
+					overlap.index_b = j;
 				}
 			} else {
 				if (temp_overlaps > overlap.overlaps_count) {
@@ -78,6 +85,8 @@ Overlap get_overlap(char **reads, int i, int j) {
 					overlap.indexes_b[1] = sj - 1;
 					overlap.read_a = reads[i];
 					overlap.read_b = reads[j];
+					overlap.index_a = i;
+					overlap.index_b = j;
 				};
 				temp_si = si;
 				temp_overlaps = 0;
@@ -86,6 +95,48 @@ Overlap get_overlap(char **reads, int i, int j) {
 	}
 
 	return overlap;
+}
+
+char* overlapit(char **reads, int *size) {
+	if (*size == 1) return reads[0];
+	Overlap higher_overlaps;
+	higher_overlaps.overlaps_count = 0;
+
+	for (int i = 0; i < *size; i++) {
+		for (int j = 0; j < *size; j++) {
+			if (i == j) continue;
+			int overlaps = 0;
+
+			Overlap overlap = get_overlap(reads, i, j);
+
+			if (overlap.overlaps_count > higher_overlaps.overlaps_count) {
+				higher_overlaps = overlap;
+			}
+				
+		}
+	}
+
+	for (int i = higher_overlaps.index_a; i < *size - 1; i++) {
+		reads[i] = reads[i + 1];
+	}
+	(*size)--;
+
+	for (int i = higher_overlaps.index_b; i < *size - 1; i++) {
+		reads[i] = reads[i + 1];
+	}
+	(*size)--;
+
+	for (int i = *size; i > 0; i--) {
+		reads[i] = reads[i - 1];
+	}
+	(*size)++;
+
+	reads[0] = merge_overlap(higher_overlaps);
+
+	//	printf("merged: %s\n", reads[0]);
+
+
+	return overlapit(reads, size);
 }
 
 int main () {
@@ -100,30 +151,15 @@ int main () {
 		scanf("%99s", reads[i]);
 	}
 	
-	Overlap higher_overlaps;
-	higher_overlaps.overlaps_count = 0;
+	char *test = overlapit(reads, &n);
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			if (i == j) continue;
-			int overlaps = 0;
+	printf("%s", test);
 
-			Overlap overlap = get_overlap(reads, i, j);
+	/* printf("sobreposicoes: %d\na: %d-%d\nb: %d-%d\n\n", higher_overlaps.overlaps_count, higher_overlaps.indexes_a[0], higher_overlaps.indexes_a[1], higher_overlaps.indexes_b[0], higher_overlaps.indexes_b[1]); */
+	/* printf("a: \n"); */
+	/* printcvec(higher_overlaps.read_a); */
+	/* printf("b: \n"); */
+	/* printcvec(higher_overlaps.read_b); */
 
-			if (overlap.overlaps_count > higher_overlaps.overlaps_count) {
-				higher_overlaps = overlap;
-			}
-		}
-	}
-
-
-	printf("sobreposicoes: %d\na: %d-%d\nb: %d-%d\n\n", higher_overlaps.overlaps_count, higher_overlaps.indexes_a[0], higher_overlaps.indexes_a[1], higher_overlaps.indexes_b[0], higher_overlaps.indexes_b[1]);
-	printf("a: \n");
-	printcvec(higher_overlaps.read_a);
-	printf("b: \n");
-	printcvec(higher_overlaps.read_b);
-	
-	// merge_overlap(higher_overlaps);
-	
 	return 0;
 }
